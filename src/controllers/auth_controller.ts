@@ -59,16 +59,36 @@ export const loginAttemp = async (req: Request, res: Response) => {
     }
     const matchPassword = await bcrypt.compare(password, result?.password);
     if (matchPassword) {
-      const token = jwt.sign(
+      const accessToken = jwt.sign(
         { username: result.username },
-        process.env.JWT_SECRET as string,
+        process.env.ACCESS_TOKEN_SECRET as string,
         {
-          expiresIn: "1h",
+          expiresIn: "15m",
+          algorithm: "HS256",
         }
       );
+      const refreshToken = jwt.sign(
+        { username: result.username },
+        process.env.REFRESH_TOKEN_SECRET as string,
+        {
+          expiresIn: "1h",
+          algorithm: "HS256",
+        }
+      );
+      try {
+        await DBclient.query(
+          "UPDATE users SET refresh_token = $1 WHERE id = $2",
+          [refreshToken, result.id]
+        );
+      } catch {
+        res.status(500).json({
+          messege: "store refrsh token fail",
+        });
+      }
       res.status(200).json({
         messege: "success",
-        token: token,
+        access_token: accessToken,
+        refresh_token: refreshToken,
       });
       return;
     } else {
@@ -83,6 +103,61 @@ export const loginAttemp = async (req: Request, res: Response) => {
     res.status(500).json({
       messege: "db error",
       error: error,
+    });
+  }
+};
+
+export const refreshTokenAttemp = async (req: Request, res: Response) => {
+  const { username, refresh_token } = req.body;
+  const { rows } = await DBclient.query(
+    "SELECT * FROM users WHERE username = $1",
+    [username]
+  );
+
+  const result = rows[0];
+  if (!result) {
+    res.status(404).json({
+      messege: "user not found",
+    });
+    return;
+  }
+
+  const isRefreshMatch = result.refresh_token === refresh_token;
+  if (isRefreshMatch) {
+    const accessToken = jwt.sign(
+      { username: result.username },
+      process.env.ACCESS_TOKEN_SECRET as string,
+      {
+        expiresIn: "15m",
+        algorithm: "HS256",
+      }
+    );
+    const refreshToken = jwt.sign(
+      { username: result.username },
+      process.env.REFRESH_TOKEN_SECRET as string,
+      {
+        expiresIn: "1h",
+        algorithm: "HS256",
+      }
+    );
+    try {
+      await DBclient.query(
+        "UPDATE users SET refresh_token = $1 WHERE id = $2",
+        [refreshToken, result.id]
+      );
+    } catch {
+      res.status(500).json({
+        messege: "store refrsh token fail",
+      });
+    }
+    res.status(200).json({
+      messege: "success",
+      access_token: accessToken,
+      refresh_token: refreshToken,
+    });
+  } else {
+    res.status(401).json({
+      messege: "invalid refresh token",
     });
   }
 };
