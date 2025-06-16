@@ -20,11 +20,11 @@ app.use(bodyParser.json());
 app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
 
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.APP_PORT || 4000;
 
 const server = http.createServer(app);
 export const io = new Server(server);
 
 server.listen(PORT, () => {
-  console.log("run on 8080");
+  console.log("run on " + PORT);
 });

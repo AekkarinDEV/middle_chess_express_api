@@ -8,6 +8,7 @@ export const DBclient = new Client({
   password: process.env.DB_password,
   user: process.env.DB_user,
   database: process.env.DB_database,
+  ssl: { rejectUnauthorized: false },
 });
 
 DBclient.connect();

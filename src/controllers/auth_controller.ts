@@ -5,7 +5,7 @@ import { GennerateUDI } from "../utils/unique_id";
 import { DatabaseError } from "pg";
 import jwt from "jsonwebtoken";
 
-export const createUser = async (req: Request, res: Response) => {
+export const signupAttemp = async (req: Request, res: Response) => {
   const { username, password, email } = req.body;
   const id = GennerateUDI();
   const hashedPassword = await bcrypt.hash(password, 10);
@@ -42,7 +42,7 @@ export const createUser = async (req: Request, res: Response) => {
   }
 };
 
-export const loginAttemp = async (req: Request, res: Response) => {
+export const signinAttemp = async (req: Request, res: Response) => {
   const { username, password } = req.body;
   console.log(req.body);
   try {
@@ -87,6 +87,8 @@ export const loginAttemp = async (req: Request, res: Response) => {
       }
       res.status(200).json({
         messege: "success",
+        user_id: result.id,
+        username: result.username,
         access_token: accessToken,
         refresh_token: refreshToken,
       });
@@ -96,7 +98,6 @@ export const loginAttemp = async (req: Request, res: Response) => {
         messege: "wrong password",
       });
     }
-    res.status(200).json({ messege: "found" });
   } catch (err) {
     console.log(err);
     const error = err as DatabaseError;

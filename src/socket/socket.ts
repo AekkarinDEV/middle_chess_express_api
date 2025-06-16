@@ -1,3 +1,3 @@
-import { io } from "../app";
+import { io } from "..";
 
 io.on("connection", (socket) => {});
