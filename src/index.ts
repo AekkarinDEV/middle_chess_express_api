@@ -21,10 +21,13 @@ app.use(bodyParser.json());
 app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
 
-mongoose
-  .connect("mongodb://localhost:27017/student-api")
-  .then(() => console.log("Connected to MongoDB"))
-  .catch((err) => console.error("Failed to connect to MongoDB", err));
+try {
+  mongoose
+    .connect(process.env.DB_MONGO as string)
+    .then(() => console.log("Connected to MongoDB"));
+} catch (err) {
+  console.error("Failed to connect to MongoDB", err);
+}
 
 const PORT = process.env.APP_PORT || 4000;
 
