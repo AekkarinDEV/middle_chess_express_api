@@ -1,44 +1,28 @@
 import { Request, Response } from "express";
-import { DBclient } from "../config/db_client";
 import bcrypt from "bcryptjs";
-import { GennerateUDI } from "../utils/unique_id";
 import { DatabaseError } from "pg";
 import jwt from "jsonwebtoken";
+import { User } from "models";
 
 export const signupAttemp = async (req: Request, res: Response) => {
   const { username, password, email } = req.body;
-  const id = GennerateUDI();
   const hashedPassword = await bcrypt.hash(password, 10);
   try {
-    await DBclient.query(
-      "INSERT INTO users (id,username,password,email) VALUES ($1,$2,$3,$4)",
-      [id, username, hashedPassword, email]
-    );
+    const newUser = new User({
+      username: username,
+      password: hashedPassword,
+      email: email,
+    });
+
+    const createdUser = await newUser.save();
     res.status(200).json({
       messege: "success",
     });
   } catch (err) {
     console.log(err);
-    const error = err as DatabaseError;
-    if (
-      error.detail?.includes("exists") &&
-      error.detail?.includes("username")
-    ) {
-      res.status(409).json({
-        conflict: "username",
-      });
-    } else if (
-      error.detail?.includes("exists") &&
-      error.detail?.includes("email")
-    ) {
-      res.status(409).json({
-        conflict: "email",
-      });
-    } else {
-      res.status(400).json({
-        error: err,
-      });
-    }
+    res.status(500).json({
+      error: err,
+    });
   }
 };
 

@@ -7,6 +7,7 @@ import cors from "cors";
 import { Server } from "socket.io";
 import userRouter from "./routes/user";
 import morgan from "morgan";
+import mongoose from "mongoose";
 
 morgan.token("user-id", (req: any) => req.user?.id || "anonymous");
 morgan.token("body", (req: any) => JSON.stringify(req.body));
@@ -19,6 +20,11 @@ app.use(morgan(":method :url UserID=:user-id Body=:body"));
 app.use(bodyParser.json());
 app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
+
+mongoose
+  .connect("mongodb://localhost:27017/student-api")
+  .then(() => console.log("Connected to MongoDB"))
+  .catch((err) => console.error("Failed to connect to MongoDB", err));
 
 const PORT = process.env.APP_PORT || 4000;
 
