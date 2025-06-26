@@ -1,8 +1,7 @@
 import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { User } from "../models";
-import mongoose from "mongoose";
+import { User } from "../models/User";
 import { MongoDuplicateKeyError } from "utils/mongoose_err_interface";
 
 export const signupAttemp = async (req: Request, res: Response) => {

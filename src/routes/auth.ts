@@ -8,19 +8,11 @@ import { googleUserAuth } from "../services/google_auth";
 
 const authRouter = Router();
 
-authRouter.post("/sign_up", async (req: Request, res: Response) =>
-  signupAttemp(req, res)
-);
+authRouter.post("/sign_up", signupAttemp);
+authRouter.post("/sign_in", signinAttemp);
+authRouter.post("/refresh", refreshTokenAttemp);
 
-authRouter.post("/sign_in", async (req: Request, res: Response) =>
-  signinAttemp(req, res)
-);
+// google authen
+authRouter.post("/google_auth", googleUserAuth);
 
-authRouter.post("/refresh", async (req: Request, res: Response) => {
-  refreshTokenAttemp(req, res);
-});
-
-authRouter.post("/google_auth", async (req: Request, res: Response) => {
-  googleUserAuth(req, res);
-});
 export default authRouter;

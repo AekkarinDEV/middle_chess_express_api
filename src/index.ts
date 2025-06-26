@@ -6,18 +6,14 @@ import dotenv from "dotenv";
 import cors from "cors";
 import { Server } from "socket.io";
 import userRouter from "./routes/user";
-import morgan from "morgan";
 import mongoose from "mongoose";
-
-morgan.token("user-id", (req: any) => req.user?.id || "anonymous");
-morgan.token("body", (req: any) => JSON.stringify(req.body));
 
 dotenv.config();
 
 const app = express();
 app.use(cors());
-app.use(morgan(":method :url UserID=:user-id Body=:body"));
 app.use(bodyParser.json());
+
 app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
 
